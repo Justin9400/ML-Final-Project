@@ -1,8 +1,0 @@
-import pandas as pd
-
-path = "spam.csv"
-df = pd.read_csv(path)
-
-for row in df['v1']:
-    spam = df.loc[df['v1'] == 'spam']
-    print(spam['v2'])
