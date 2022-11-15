@@ -4,5 +4,5 @@ path = "spam.csv"
 df = pd.read_csv(path)
 
 for row in df['v1']:
-    if df.loc[df['v1']] == 'spam':
-        print("0")
+    spam = df.loc[df['v1'] == 'spam']
+    print(spam['v2'])

@@ -8,15 +8,20 @@ nltk.download('stopwords')
 ps = PorterStemmer()
 stop_words = stopwords.words('english')
 removedStopWords = []
+spamText = []
+hamText = []
 
 # Loads the CSV file
 def loadCSV(path):
     df = pd.read_csv(path)
     return df
 
-def splitDf(df):
-    for row in df:
-        df.loc[df['favorite_color']] == 'yellow'
+def splitSpamHam(df):
+    spam = df.loc[df['v1'] == 'spam']
+    spamText.append(spam['v2'])
+    ham = df.loc[df['v1'] == 'ham']
+    hamText.append(ham['v2'])
+        
 
 # Tokenizes and removes all of the stop words from each text
 def removeStopWords(df):
@@ -28,18 +33,21 @@ def removeStopWords(df):
                 tokenizedText.remove(word) # Removes the word from the text if it is a stop word
         removedStopWords.append(tokenizedText) # Appends the new text without the stop words to a list
 
-def wordStemming():
-    for text in removedStopWords:
-        for words in text:
-            print(words, " : ", ps.stem(words))
+# def wordStemming():
+    # for text in removedStopWords:
+        # for words in text:
+            # print(words, " : ", ps.stem(words))
 
-def frequentWordsIdentification():
+# def frequentWordsIdentification():
 
 
 def main():
     path = "spam.csv"
     df = loadCSV(path)
+    splitSpamHam(df)
     removeStopWords(df)
-    wordStemming()
+    # wordStemming()
+    print(spamText)
+    print(hamText)
 
 main()
