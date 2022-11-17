@@ -8,8 +8,6 @@ nltk.download('stopwords')
 ps = PorterStemmer()
 stop_words = stopwords.words('english')
 
-
-
 '''
     Loads the dataset as a dataframe 
 '''
@@ -85,6 +83,12 @@ def frequentWordsIdentification(rankStems):
     topFifty = dict(islice(rankStems.items(), 50))
     return topFifty
 
+'''
+    Gets the top 100 stems from both spam and ham
+'''
+def getTopOneHundredStems(totalStemDict):
+    topOneHundred = dict(islice(totalStemDict.items(), 100))
+    return topOneHundred
 
 def main():
     # Loads the dataset as a dataframe
@@ -103,15 +107,25 @@ def main():
     hamStemDict = wordCount(cleanedHamText)
 
     # Combines the spam and ham stem dictionaries into one dictionary
-    totalStemDict = {**spamStemDict, **hamStemDict}
+    totalStemDict = spamStemDict | hamStemDict
 
     # Sorts the stem counts in descending order
     spamStemDict = rankStems(spamStemDict)
     hamStemDict = rankStems(hamStemDict)
     totalStemDict = rankStems(hamStemDict)
 
-    # Gets the top 50 stems from the whole data set
+    # Gets the top 50 stems from the spam and ham 
     topFiftyStemsSpam = frequentWordsIdentification(spamStemDict)
     topFiftyStemsHam = frequentWordsIdentification(hamStemDict)
+
+    # Gets the top 100 stems from the whole data set
+    topOneHundredStems = getTopOneHundredStems(totalStemDict)
+
+    # Converst the dictionary to a dataframe
+    df = pd.DataFrame(topOneHundredStems, index=[0])
+
+    # Exports the top 100 stems from the data set to a csv
+    df.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
+
 
 main()
