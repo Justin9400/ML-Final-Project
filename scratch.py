@@ -6,6 +6,15 @@ from nltk.stem import PorterStemmer
 nltk.download('stopwords')
 stop_words = stopwords.words('english')
 
+second_dict = { 'hi' : 87,  'hello' : 19, 'bye' : 12}
+first_dict = { 'hi' : 87,  'B' : 19, 'C' : 34}
+
+value1 = { k : second_dict[k] for k in set(second_dict) - set(first_dict) }
+value2 = { k : first_dict[k] for k in set(first_dict) - set(second_dict) }
+
+print(value1)
+print(value2)
+
 # # For each text in the v2 column
 # for text in list
 #     tokenizedText = word_tokenize(text) # Tokenizes the text 
@@ -23,3 +32,5 @@ stop_words = stopwords.words('english')
     #         if word.lower() not in stop_words
     #             nonStopWord = word
     #     cleanedText.append(nonStopWord)
+
+

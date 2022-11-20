@@ -5,11 +5,12 @@ from sklearn.metrics import accuracy_score
 # Reads in the data set 
 data = pd.read_csv('Top 100 Stems.csv')
 
+columnNames = ["Stems", "Counts"]
 # Extracting Attributes / Features
-X = data.data
+X = data[columnNames]
 
 # Extracting Target / Class Labels
-y = data.target
+y = data["Class"]
 
 # Import Library for splitting data
 from sklearn.model_selection import train_test_split

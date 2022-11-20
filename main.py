@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from itertools import islice
-nltk.download('stopwords')
+# nltk.download('stopwords')
 ps = PorterStemmer()
 stop_words = stopwords.words('english')
 
@@ -71,28 +71,71 @@ def wordCount(cleanedText):
     Sorts the dictionary of stem counts in descending order
 '''
 def rankStems(stemDict):
-    # Sorts the dictionary in ascending order
+    # Sorts the dictionary passed in as a parameter in ascending order
     rankedDescending = dict(sorted(stemDict.items(), key=lambda y: y[1], reverse=True))
     return rankedDescending
 
 '''
-    Gets the top 50 most frequent stems
+    Gets the top 50 most frequent stems for a given dictionary
 '''
 def frequentWordsIdentification(rankStems):
-    # Gets the top 50 most frequent stems in the whole data set
+    # Gets the top 50 most frequent stems in the dictionary passed in
     topFifty = dict(islice(rankStems.items(), 50))
     return topFifty
 
 '''
-    Gets the top 100 stems from both spam and ham
+    Gets the top 100 unique stems from both spam and ham
 '''
-def getTopOneHundredStems(totalStemDict):
+def getTopOneHundredUniqueStems(spamStemDict, hamStemDict):
+
+    # Gets values that are in ham but not in spam and in spam but not in ham
+    uniqueHam = { k : hamStemDict[k] for k in set(hamStemDict) - set(spamStemDict) }
+    uniqueSpam = { k : spamStemDict[k] for k in set(spamStemDict) - set(hamStemDict) }
+
+    # Ranks the stems for spam and ham
+    uniqueSpam = rankStems(uniqueSpam)
+    uniqueHam = rankStems(uniqueHam)
+
+    # Gets the top 50 results from spam and ham
+    uniqueSpam = dict(islice(uniqueSpam.items(), 50))
+    uniqueHam = dict(islice(uniqueHam.items(), 50))
+
+    # Combines the spam and ham dictionaries
+    totalStemDict = uniqueSpam | uniqueHam
+
+    # Creates the classifier list to tell which stem is spam or ham
+    spam = ['spam'] * 50
+    ham = ['ham'] * 50
+    classifier = spam + ham 
+
+    # Gets the top 100 
     topOneHundred = dict(islice(totalStemDict.items(), 100))
-    return topOneHundred
+    return topOneHundred, classifier
+
+'''
+    Creates a result dataframe from the top 100 stems
+'''
+def createDataframe(topOneHundredStems, classifier):
+    stems = []
+    counts = []
+
+    # For each key and value in the dictionary append the keys to a list and the values to a list
+    for key, value in topOneHundredStems.items():
+        stems.append(key)
+        counts.append(value)
+
+    # Create the final dictionary
+    resultsDF = {"Stems" : stems, "Counts" : counts, "Class" : classifier}
+
+    # Create the dataframe
+    df = pd.DataFrame(resultsDF)
+
+    return df
+
 
 def main():
     # Loads the dataset as a dataframe
-    path = "spam.csv"
+    path = "spam test.csv"
     df = loadCSV(path)
 
     # Splits the dataset into spam and ham
@@ -106,23 +149,19 @@ def main():
     spamStemDict = wordCount(cleanedSpamText)
     hamStemDict = wordCount(cleanedHamText)
 
-    # Combines the spam and ham stem dictionaries into one dictionary
-    totalStemDict = spamStemDict | hamStemDict
-
     # Sorts the stem counts in descending order
     spamStemDict = rankStems(spamStemDict)
     hamStemDict = rankStems(hamStemDict)
-    totalStemDict = rankStems(hamStemDict)
 
     # Gets the top 50 stems from the spam and ham 
     topFiftyStemsSpam = frequentWordsIdentification(spamStemDict)
     topFiftyStemsHam = frequentWordsIdentification(hamStemDict)
 
-    # Gets the top 100 stems from the whole data set
-    topOneHundredStems = getTopOneHundredStems(totalStemDict)
+    # Gets the top 100 unique stems from the whole data set
+    topOneHundredStems, classifierList = getTopOneHundredUniqueStems(spamStemDict, hamStemDict)
 
-    # Converst the dictionary to a dataframe
-    df = pd.DataFrame(topOneHundredStems, index=[0])
+    # Converts the dictionary to a dataframe
+    df = createDataframe(topOneHundredStems, classifierList)
 
     # Exports the top 100 stems from the data set to a csv
     df.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
