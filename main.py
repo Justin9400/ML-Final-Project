@@ -102,6 +102,9 @@ def getUniqueSpamHamStems(spamStemDict, hamStemDict):
 
     return uniqueSpam , uniqueHam
 
+'''
+    Gets the top 100 unique stems from spam and ham
+'''
 def getTopOneHundredUniqueStems(uniqueSpam, uniqueHam):
 # Combines the spam and ham dictionaries
     totalStemDict = uniqueSpam | uniqueHam
@@ -111,26 +114,9 @@ def getTopOneHundredUniqueStems(uniqueSpam, uniqueHam):
     return topOneHundredStems 
 
 '''
-    Creates a result dataframe from the top 100 stems
+    Tokenizes and stems every email and adds it to a list
 '''
-def createDataframe(topOneHundredStems):
-    stems = []
-    counts = []
-
-    # For each key and value in the dictionary append the keys to a list and the values to a list
-    for key, value in topOneHundredStems.items():
-        stems.append(key)
-        counts.append(value)
-
-    # Create the final dictionary
-    resultsDF = {"Stems" : stems, "Counts" : counts}
-
-    # Create the dataframe
-    df = pd.DataFrame(resultsDF)
-
-    return df
-
-def tokenizeDf(df):
+def tokenizeStemDf(df):
     tokenizedLine = []
     dfAsList = []
     # For each stem in the data set
@@ -142,22 +128,35 @@ def tokenizeDf(df):
             # stems the current word
             word = ps.stem(word)
             temp.append(word)
-
+        # Appends each email into the result list 
         dfAsList.append(temp)
     return dfAsList
 
+'''
+    Checks the number of times a stem appears in each email to create the result matrix
+'''
 def createMatrix(df, topOneHundredStems):
-    dfAsList = tokenizeDf(df)
+    dfAsList = tokenizeStemDf(df)
 
+    # For each email in the tokenized and stemmed list
     for line in dfAsList:
+        # For each key - value in the given dictionary
         for stem, value in topOneHundredStems.items():
+            # Gets the number of times that stem occurs in the email
             count = line.count(stem)
+
+            # Appends the occurance count to the value list
             value.append(count)
 
     return topOneHundredStems
 
+'''
+    Returns a clean dictionary where the keys are the stems and the values are empty lists
+'''
 def getKeys(topOneHundredStems):
     stems = {}
+    
+    # For each key-value pair in given dictionary
     for key, value in topOneHundredStems.items():
         stems[key] = []
 
@@ -185,32 +184,37 @@ def main():
 
     uniqueSpam, uniqueham = getUniqueSpamHamStems(spamStemDict, hamStemDict)
 
-    # print(uniqueSpam)
     # Gets the top 100 unique stems, 50 from spam and 50 from ham
-    topOneHundredStems = getTopOneHundredUniqueStems(uniqueSpam, uniqueham)
+    topOneHundredUniqueStems = getTopOneHundredUniqueStems(uniqueSpam, uniqueham)
 
-    topOneHundredStemsList = getKeys(topOneHundredStems)
+    # Creates a new dicitonary where the keys are the stems and the values are just empty lists
+    topOneHundredStemsList = getKeys(topOneHundredUniqueStems)
     top50SpamStemsList = getKeys(uniqueSpam)
     top50HamStemsList = getKeys(uniqueham)
-    # # Converts the dictionary to a dataframe
-    # df = createDataframe(topOneHundredStems)
-    # print(topOneHundredStems)
-    # # Exports the top 100 stems from the data set to a csv
 
+    # Checks the number of times each stem appears in each email and creates the result matrix
     top100Dict = createMatrix(df, topOneHundredStemsList)
     top50SpamDict = createMatrix(df, top50SpamStemsList)
     top50HamDict = createMatrix(df, top50HamStemsList)
 
+    # Converts the dictionaries into dataframes
     df1 = pd.DataFrame.from_dict(top100Dict)
     df2 = pd.DataFrame.from_dict(top50SpamDict)
     df3 = pd.DataFrame.from_dict(top50HamDict)
 
+    # Gets the length of the first column in the dataframe
+    columnLength = len(df.iloc[:, 0])
+
+    # Exports csv for top 100 stems 
     df1["Class"] = df['v1']
     df1.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
 
+    # Exports csv for top 50 Spam stems 
+    df2["Class"] = ["Spam"] * columnLength
     df2.to_csv('Top 50 Spam Stems.csv', index = False, encoding='utf-8')
+
+    # Exports csv for top 50 Ham stems 
+    df3["Class"] = ["Ham"] * columnLength
     df3.to_csv('Top 50 Ham Stems.csv', index = False, encoding='utf-8')
-
-
 
 main()
