@@ -5,9 +5,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 # Reads in the data set 
-data = pd.read_csv('Top 100 Stems.csv')
-
-columnNames = ["Stems", "Counts"]
+data = pd.read_csv('Top 100 Stems.csv', encoding= "utf-8")
+columnNames = []
+for col in data.columns:
+    if col == "Class":
+        break
+    else:
+        columnNames.append(col)
+# columnNames = ["program", "like", "peter",	"programm",	"griffin", "world",	"lacross", "hello", "track", "soccer"]
 # Extracting Attributes / Features
 X = data[columnNames]
 
@@ -15,7 +20,7 @@ X = data[columnNames]
 y = data["Class"]
 
 # Creating Train and Test datasets, the test size is 25% and train is 75%
-X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 50, test_size = 0.25)
+X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 50, test_size = 0.3)
 
 # Create Random Forest Classifier
 clf = RandomForestClassifier(n_estimators = 100) 
