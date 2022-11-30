@@ -115,7 +115,7 @@ def getTopOneHundredUniqueStems(spamStemDict, hamStemDict):
 '''
     Creates a result dataframe from the top 100 stems
 '''
-def createDataframe(topOneHundredStems, classifier):
+def createDataframe(topOneHundredStems):
     stems = []
     counts = []
 
@@ -125,25 +125,51 @@ def createDataframe(topOneHundredStems, classifier):
         counts.append(value)
 
     # Create the final dictionary
-    resultsDF = {"Stems" : stems, "Counts" : counts, "Class" : classifier}
+    resultsDF = {"Stems" : stems, "Counts" : counts}
 
     # Create the dataframe
     df = pd.DataFrame(resultsDF)
 
     return df
 
-def createMatrix(topOneHundredStems, spamStemDict, hamStemDict):
-    unionDict = spamStemDict | hamStemDict
-    unionDict = list(unionDict.keys())
-    print(unionDict)
-    # # For each stem in the data set
-    # for stem in unionDict:
-    #     print(stem) 
+def tokenizeDf(df):
+    tokenizedLine = []
+    dfAsList = []
+    # For each stem in the data set
+    for text in df['v2']:
+        temp = []
+        tokenizedLine = word_tokenize(text) 
+        # For each word in the current sentence
+        for word in tokenizedLine:
+            # stems the current word
+            word = ps.stem(word)
+            temp.append(word)
+
+        dfAsList.append(temp)
+    return dfAsList
+
+def createMatrix(df, topOneHundredStems):
+    dfAsList = tokenizeDf(df)
+
+    for line in dfAsList:
+        for stem, value in topOneHundredStems.items():
+            count = line.count(stem)
+            value.append(count)
+
+    return topOneHundredStems
+
+def getKeys(topOneHundredStems):
+    stems = {}
+    for key, value in topOneHundredStems.items():
+        stems[key] = []
+
+    return stems
+
 
 
 def main():
     # Loads the dataset as a dataframe
-    path = "spam.csv"
+    path = "spam copy.csv"
     df = loadCSV(path)
 
     # Splits the dataset into spam and ham
@@ -161,20 +187,19 @@ def main():
     spamStemDict = rankStems(spamStemDict)
     hamStemDict = rankStems(hamStemDict)
 
-    # Gets the top 50 stems from the spam and ham 
-    topFiftyStemsSpam = frequentWordsIdentification(spamStemDict)
-    topFiftyStemsHam = frequentWordsIdentification(hamStemDict)
+    # Gets the top 100 unique stems, 50 from spam and 50 from ham
+    topOneHundredStems = getTopOneHundredUniqueStems(spamStemDict, hamStemDict)
 
-    # Gets the top 100 unique stems from the whole data set
-    topOneHundredStems, classifierList = getTopOneHundredUniqueStems(spamStemDict, hamStemDict)
+    topOneHundredStemsList = getKeys(topOneHundredStems)
+    # # Converts the dictionary to a dataframe
+    # df = createDataframe(topOneHundredStems)
+    # print(topOneHundredStems)
+    # # Exports the top 100 stems from the data set to a csv
 
-    # Converts the dictionary to a dataframe
-    df = createDataframe(topOneHundredStems, classifierList)
+    dict = createMatrix(df, topOneHundredStemsList)
 
-    # Exports the top 100 stems from the data set to a csv
-    df.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
-
-    createMatrix(topOneHundredStems, spamStemDict, hamStemDict)
-
+    dataFrame = pd.DataFrame.from_dict(dict)
+    dataFrame["Class"] = df['v1']
+    dataFrame.to_csv('Top 1000 Stems.csv', index = False, encoding='utf-8')
 
 main()
