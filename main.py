@@ -103,14 +103,14 @@ def getTopOneHundredUniqueStems(spamStemDict, hamStemDict):
     # Combines the spam and ham dictionaries
     totalStemDict = uniqueSpam | uniqueHam
 
-    # Creates the classifier list to tell which stem is spam or ham
-    spam = ['spam'] * 50
-    ham = ['ham'] * 50
-    classifier = spam + ham 
+    # # Creates the classifier list to tell which stem is spam or ham
+    # spam = ['spam'] * 50
+    # ham = ['ham'] * 50
+    # classifier = spam + ham 
 
     # Gets the top 100 
-    topOneHundred = dict(islice(totalStemDict.items(), 100))
-    return topOneHundred, classifier
+    topOneHundredStems = dict(islice(totalStemDict.items(), 100))
+    return topOneHundredStems #, classifier
 
 '''
     Creates a result dataframe from the top 100 stems
@@ -132,10 +132,18 @@ def createDataframe(topOneHundredStems, classifier):
 
     return df
 
+def createMatrix(topOneHundredStems, spamStemDict, hamStemDict):
+    unionDict = spamStemDict | hamStemDict
+    unionDict = list(unionDict.keys())
+    print(unionDict)
+    # # For each stem in the data set
+    # for stem in unionDict:
+    #     print(stem) 
+
 
 def main():
     # Loads the dataset as a dataframe
-    path = "spam test.csv"
+    path = "spam.csv"
     df = loadCSV(path)
 
     # Splits the dataset into spam and ham
@@ -165,6 +173,8 @@ def main():
 
     # Exports the top 100 stems from the data set to a csv
     df.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
+
+    createMatrix(topOneHundredStems, spamStemDict, hamStemDict)
 
 
 main()
