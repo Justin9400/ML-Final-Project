@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt
 
 def main():
     X_train, X_test, y_train, y_test = load_data()
-    n_hidden, n_classes = 5, 6
+    n_hidden, n_classes = int(len(X_train)/2), 2
     accuracy_list, loss_list = train_feddForward(X_train, X_test, y_train, y_test, n_hidden, n_classes)
     plot_result(accuracy_list, loss_list)
 
 
 def load_data():
-    data = pd.read_csv('Top 100 Stems.csv', encoding= "utf-8")
+    data = pd.read_csv('Top 50 Spam Stems.csv', encoding= "utf-8")
     columnNames = []
     for col in data.columns:
         if col == "Class":
@@ -28,10 +28,9 @@ def load_data():
         else:
             columnNames.append(col)
 
-    X = iris['data']
-    y = iris['target']
-    names = iris['target_names']
-    feature_names = iris['feature_names']
+    X = data[columnNames]
+    y = data["Class"]
+
 
     # Scale data to have mean 0 and variance 1
     # which is importance for convergence of the neural network
@@ -88,6 +87,11 @@ def train_feddForward(X_train, X_test, y_train, y_test, n_hidden, n_classes):
 
     EPOCHS = 500
     # we convert the data from numpy to torch
+    # Series.to_numpy()
+    y_train = y_train.to_numpy()
+    y_test = y_test.to_numpy()
+
+    print(torch.from_numpy(y_train))
     X_train = Variable(torch.from_numpy(X_train)).float()
     y_train = Variable(torch.from_numpy(y_train)).long()
     X_test = Variable(torch.from_numpy(X_test)).float()
@@ -137,7 +141,7 @@ def plot_result(accuracy_list, loss_list):
     ax1.set_ylabel("validation accuracy")
     ax2.plot(loss_list)
     ax2.set_ylabel("validation loss")
-    ax2.set_xlabel("epochs");
+    ax2.set_xlabel("epochs")
     plt.show()
 
 
