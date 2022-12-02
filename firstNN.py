@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 def main():
     X_train, X_test, y_train, y_test = load_data()
-    n_hidden, n_classes = int(len(X_train)/2), 2
+    n_hidden, n_classes = 4, 2
     accuracy_list, loss_list = train_feddForward(X_train, X_test, y_train, y_test, n_hidden, n_classes)
     plot_result(accuracy_list, loss_list)
 
