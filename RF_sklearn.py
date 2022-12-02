@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 # Reads in the data set 
 data = pd.read_csv('Top 100 Stems.csv', encoding= "utf-8")
@@ -28,6 +29,13 @@ clf.fit(X_train,y_train)
 
 # Predict Accuracy Score on test data set
 y_pred = clf.predict(X_test)
-
+testScore1 = ["Test", "Train"]
+testScore2 = [accuracy_score(y_true = y_train, y_pred=clf.predict(X_train)), accuracy_score(y_true = y_test, y_pred=y_pred)]
 print("Train data accuracy:", accuracy_score(y_true = y_train, y_pred=clf.predict(X_train)))
-print("Test data accuracy:",  accuracy_score(y_true = y_test, y_pred=y_pred))
+print("Test data accuracy:", accuracy_score(y_true = y_test, y_pred=y_pred))
+
+fig, ax = plt.subplots()
+bars = ax.bar(testScore1, testScore2)
+ax.bar_label(bars)
+plt.title('Random Forest')
+plt.show()

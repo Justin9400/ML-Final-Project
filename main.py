@@ -162,6 +162,19 @@ def getKeys(topOneHundredStems):
 
     return stems
 
+def normalizeData(df):
+    temp = []
+    
+    for index, value in df.items():
+        # print(value)
+        if value == "spam":
+            temp.append("0")
+        else:
+            temp.append("1")
+    return temp
+
+
+
 def main():
     # Loads the dataset as a dataframe
     path = "spam.csv"
@@ -206,15 +219,19 @@ def main():
     columnLength = len(df.iloc[:, 0])
 
     # Exports csv for top 100 stems 
-    df1["Class"] = df['v1']
+
+    df1["Class"] = normalizeData(df['v1'])
     df1.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
 
+    # SPAM = 0 HAM = 1
+
     # Exports csv for top 50 Spam stems 
-    df2["Class"] = ["Spam"] * columnLength
+    df2["Class"] = ["0"] * columnLength
     df2.to_csv('Top 50 Spam Stems.csv', index = False, encoding='utf-8')
 
     # Exports csv for top 50 Ham stems 
-    df3["Class"] = ["Ham"] * columnLength
+    df3["Class"] = ["1"] * columnLength
     df3.to_csv('Top 50 Ham Stems.csv', index = False, encoding='utf-8')
+    print("done")
 
 main()
