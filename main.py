@@ -162,16 +162,20 @@ def getKeys(topOneHundredStems):
 
     return stems
 
+'''
+    Normalizes the given values
+'''
 def normalizeData(df):
-    temp = []
-    
+    normalizedData = []
+
+    # For all of the items in the given df or list 
     for index, value in df.items():
-        # print(value)
         if value == "spam":
-            temp.append("0")
+            normalizedData.append("0")
         else:
-            temp.append("1")
-    return temp
+            normalizedData.append("1")
+
+    return normalizedData
 
 
 
@@ -218,19 +222,20 @@ def main():
     # Gets the length of the first column in the dataframe
     columnLength = len(df.iloc[:, 0])
 
-    # Exports csv for top 100 stems 
-
+    # Normalizes the Spam and Ham data into binary
+    # Spam = 0 : Ham = 1
     df1["Class"] = normalizeData(df['v1'])
+    # Exports csv for top 100 stems 
     df1.to_csv('Top 100 Stems.csv', index = False, encoding='utf-8')
 
-    # SPAM = 0 HAM = 1
-
-    # Exports csv for top 50 Spam stems 
+    # Adds the normalized class column for the spam
     df2["Class"] = ["0"] * columnLength
+    # Exports csv for top 50 spam stems 
     df2.to_csv('Top 50 Spam Stems.csv', index = False, encoding='utf-8')
 
-    # Exports csv for top 50 Ham stems 
+    # Adds the normalized class column for the ham
     df3["Class"] = ["1"] * columnLength
+    # Exports csv for top 50 ham stems 
     df3.to_csv('Top 50 Ham Stems.csv', index = False, encoding='utf-8')
     print("done")
 

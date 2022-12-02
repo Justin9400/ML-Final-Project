@@ -136,7 +136,7 @@ def plot_result(accuracy_list, loss_list):
 
     print("plotting the results ...")
     fig, (ax1, ax2) = plt.subplots(2, figsize=(12, 6), sharex=True)
-
+    fig.suptitle('First Neural Network')
     ax1.plot(accuracy_list)
     ax1.set_ylabel("validation accuracy")
     ax2.plot(loss_list)
